@@ -19,7 +19,6 @@ const IdentifyAnimal = require("../models/identify/animals");
 const IdentifySport = require("../models/identify/sports");
 const IdentifyInstrument = require("../models/identify/instruments");
 const Travel = require("../models/category/travel");
-const Complete_Status = require("../models/completeStatus/completeStatus");
 const User = require("../models/user/user");
 const CStatus = require("../models/CStatus/cStatus");
 const user_Badges = require("../models/userBadges/userBadges");
@@ -205,15 +204,6 @@ exports.incrementPlayCount = async (req, res) => {
   }
 };
 
-exports.getCompleteStatus = async (req, res) => {
-  const { category } = req.params;
-  await Complete_Status.fetchByCategory(category)
-    .then(([rows, fieldData]) => {
-      res.json(rows);
-    })
-    .catch((err) => console.log(err));
-};
-
 exports.getCStatus = async (req, res) => {
   const { category, userId } = req.params;
   await CStatus.fetchByCategoryAndUser(category, userId)
@@ -221,17 +211,6 @@ exports.getCStatus = async (req, res) => {
       res.json(rows);
     })
     .catch((err) => console.log(err));
-};
-
-exports.updateCompleteStatus = async (req, res) => {
-  try {
-    const { category } = req.params;
-    await Complete_Status.update(category);
-    res.sendStatus(204); 
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to increment play count" });
-  }
 };
 
 exports.updateCStatus = async (req, res) => {

@@ -36,8 +36,6 @@ appRouter.get('/api/playcount/:category', appController.getPlayCounts);
 appRouter.put('/api/playcount/:category', appController.incrementPlayCount);
 
 // complete status
-appRouter.get('/api/completestatus/:category', appController.getCompleteStatus);
-appRouter.put('/api/completestatus/:category', appController.updateCompleteStatus);
 appRouter.get('/api/cstatus/:category/:userId', appController.getCStatus);
 appRouter.put('/api/cstatus/:category/:userId', appController.updateCStatus);
 
