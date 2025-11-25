@@ -1,0 +1,151 @@
+const { check, validationResult } = require("express-validator");
+const User = require("../models/user/user");
+const bcryptjs = require("bcryptjs");
+const CStatus = require("../models/CStatus/cStatus");
+const user_Badges = require("../models/userBadges/userBadges");
+
+exports.postLogin = async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findUser(email);
+  console.log('user',user);
+  if (!user) {
+    return res.json({ success: false, message: ["Invalid email or password"] });
+  }
+
+  const isMatch = await bcryptjs.compare(password, user.password);
+  if (!isMatch) {
+    return res.json({ success: false, message: ["Invalid email or password"] });
+  }
+
+  req.session.isLoggedIn = true;
+  req.session.userId = user.id;
+  
+  // CStatus.insert(req.session.userId);
+  res.json({ success: true, message: 'Login successful', userId: req.session.userId });
+};
+
+exports.postLogout = (req, res) => {
+  console.log('Logout request received');
+
+  req.session.destroy(err => {
+    if (err) {
+      console.error("Error destroying session:", err);
+      return res.status(500).json({ success: false });
+    }
+    res.clearCookie("connect.sid");
+    res.json({ success: true });
+  });
+}
+
+exports.checkAuth = (req, res) => {
+  const isLoggedIn = req.session.isLoggedIn || false;
+  res.json({ isLoggedIn });
+};
+
+exports.postSignup = [
+  check("firstname")
+    .trim()
+    .isLength({ min: 2 })
+    .withMessage("First name must be at least 2 characters long")
+    .matches(/^[A-Za-z]+$/)
+    .withMessage("First name must contain only alphabetic characters"),
+
+  check("lastname")
+    .trim()
+    .matches(/^[A-Za-z]*$/)
+    .withMessage("Last name must contain only alphabetic characters"),
+
+  check("username")
+    .trim()
+    .isLength({ min: 2 })
+    .withMessage("Username must be at least 2 characters long")
+    .custom(async (value, { req }) => {
+      const [rows] = await User.fetchUsername();
+      const usernames = rows.map((u) => u.username);
+      if(usernames.includes(value)){
+        throw new Error("Username is already taken");
+      }
+      else{
+        return true;
+      }
+    })
+    .matches(/^[A-Za-z0-9_]+$/)
+    .withMessage(
+      "Username must contain only alphanumeric characters and underscores"
+    ),
+
+  check("email")
+    .isEmail()
+    .withMessage("Please enter a valid email address")
+    .normalizeEmail(),
+
+  check("password")
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters long")
+    .matches(/[a-z]/)
+    .withMessage("Password must contain at least one lowercase letter")
+    .matches(/[A-Z]/)
+    .withMessage("Password must contain at least one uppercase letter")
+    .matches(/[0-9]/)
+    .withMessage("Password must contain at least one number")
+    .matches(/[\W_]/)
+    .withMessage("Password must contain at least one special character")
+    .trim(),
+
+  check("confirmpassword")
+    .trim()
+    .custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error("Passwords do not match");
+      }
+      return true;
+    }),
+
+  async (req, res) => {
+    const { firstname, lastname, username, email, password, confirmpassword } =
+      req.body;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.json({
+        success: false,
+        errorMessages: errors.array().map((error) => error.msg),
+        oldInput: {
+          firstname,
+          lastname,
+          username,
+          email,
+          password,
+        },
+      });
+    }
+
+    bcryptjs.hash(password, 12, async (err, hashedPassword) => {
+      try {
+        const user = new User(
+          null,
+          firstname,
+          lastname,
+          username,
+          email,
+          hashedPassword
+        );
+
+        await user.insert();
+
+        const userDetail = await User.findUser(email);
+        const userId = userDetail.id;
+
+        await user_Badges.insert(userId);
+
+        await CStatus.insert(userId);
+
+        res.status(201).json({ success: true, message: "Signup successful" });
+      } catch (err) {
+        console.error("Error inserting user:", err);
+        return res.status(500).json({ success: false });
+      }
+    });
+  },
+];
