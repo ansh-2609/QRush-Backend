@@ -1,7 +1,6 @@
 const db = require('../../utils/databaseUtils');
-const { insert } = require('../CStatus/cStatus');
 
-module.exports = class user_Badges {
+module.exports = class user_badges {
     constructor(id, user_id, badge_id, unlocked, progress, date_unlocked) {
         this.id = id;
         this.user_id = user_id;
@@ -12,7 +11,7 @@ module.exports = class user_Badges {
     }
 
     static fetchBadgesByUser(userId) {
-        return db.execute('SELECT * FROM user_Badges WHERE user_id = ?', [userId]);
+        return db.execute('SELECT * FROM user_badges WHERE user_id = ?', [userId]);
     }
 
     static insert(userId) {

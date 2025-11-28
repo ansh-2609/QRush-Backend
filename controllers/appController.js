@@ -21,8 +21,8 @@ const IdentifyInstrument = require("../models/identify/instruments");
 const Travel = require("../models/category/travel");
 const User = require("../models/user/user");
 const CStatus = require("../models/CStatus/cStatus");
-const user_Badges = require("../models/userBadges/userBadges");
 const Badges = require("../models/badges/badges");
+const user_badges = require("../models/userBadges/userBadges");
 
 exports.getPlanetsPage = (req, res) => {
   Planet.fetchAll()
@@ -254,7 +254,7 @@ exports.incrementUserQuizPlayed = async (req, res) => {
 
 exports.getUserBadges = async (req, res) => {
   const { userId } = req.params;
-  await user_Badges.fetchBadgesByUser(userId)
+  await user_badges.fetchBadgesByUser(userId)
     .then(([rows, fieldData]) => {
       res.json(rows);
     })
