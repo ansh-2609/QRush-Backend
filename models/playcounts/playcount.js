@@ -7,7 +7,6 @@ module.exports = class PlayCount {
         this.playcount = playcount; 
     }
 
-    // Get all play counts
     static fetchAll() {
         return db.execute('SELECT * FROM playcount'); 
     }
@@ -17,9 +16,7 @@ module.exports = class PlayCount {
     }
 
 
-    // Increment play count for a specific category
     static increment(category) {
-        console.log('increment called');
         return db.execute(`
             UPDATE playcount 
             SET playcounts = playcounts + 1 

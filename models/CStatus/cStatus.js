@@ -1,7 +1,7 @@
 const db = require('../../utils/databaseUtils');
 
 module.exports = class CStatus {
-    constructor(id, plants, animals, planets, technology, science, geography, travel) {
+    constructor(id, plants, animals, planets, technology, science, geography, generalknowledge, travel, environment, space) {
         this.id = id;
         this.plants = plants;
         this.animals = animals;
@@ -9,7 +9,10 @@ module.exports = class CStatus {
         this.technology = technology;
         this.science = science; 
         this.geography = geography;
+        this.generalknowledge = generalknowledge;
         this.travel = travel;
+        this.environment = environment;
+        this.space = space;
     }
 
     static fetchAll() {
@@ -19,8 +22,8 @@ module.exports = class CStatus {
     static insert(id) {
   return db.execute(
     `INSERT INTO c_status 
-     (id, plants, animals, planets, technology, science, geography, travel)
-     VALUES (?, 0, 0, 0, 0, 0, 0, 0)`,
+     (id, plants, animals, planets, technology, science, geography, generalknowledge, travel, environment, space)
+     VALUES (?, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)`,
     [id]
   );
 }

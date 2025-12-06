@@ -3,12 +3,16 @@ const User = require("../models/user/user");
 const bcryptjs = require("bcryptjs");
 const CStatus = require("../models/CStatus/cStatus");
 const user_Badges = require("../models/userBadges/userBadges");
+const ImageQuizStatus = require("../models/imageQuizStatus/imageQuizStatus");
+const FinishQuizStatus = require("../models/finishQuizStatus/finishQuizStatus");
+const EscapeQuizStatus = require("../models/escapeQuizStatus/escapeQuizStatus");
+const validateEmail = require("deep-email-validator").validate;
+
 
 exports.postLogin = async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findUser(email);
-  console.log('user',user);
   if (!user) {
     return res.json({ success: false, message: ["Invalid email or password"] });
   }
@@ -21,12 +25,10 @@ exports.postLogin = async (req, res) => {
   req.session.isLoggedIn = true;
   req.session.userId = user.id;
   
-  // CStatus.insert(req.session.userId);
   res.json({ success: true, message: 'Login successful', userId: req.session.userId });
 };
 
 exports.postLogout = (req, res) => {
-  console.log('Logout request received');
 
   req.session.destroy(err => {
     if (err) {
@@ -78,6 +80,23 @@ exports.postSignup = [
   check("email")
     .isEmail()
     .withMessage("Please enter a valid email address")
+    .custom(async (value) => {
+      const { valid } = await validateEmail(value);
+      if (!valid) {
+        throw new Error("Invalid or undeliverable email address");
+      }
+      return true;
+    })
+    .custom(async (value, { req }) => {
+      const [rows] = await User.fetchEmail();
+      const emails = rows.map((u) => u.email);
+      if(emails.includes(value)){
+        throw new Error("Email is already taken");
+      }
+      else{
+        return true;
+      }
+    })
     .normalizeEmail(),
 
   check("password")
@@ -140,6 +159,12 @@ exports.postSignup = [
         await user_Badges.insert(userId);
 
         await CStatus.insert(userId);
+
+        await ImageQuizStatus.insert(userId);
+
+        await FinishQuizStatus.insert(userId);
+
+        await EscapeQuizStatus.insert(userId);
 
         res.status(201).json({ success: true, message: "Signup successful" });
       } catch (err) {
