@@ -7,6 +7,7 @@ const ImageQuizStatus = require("../models/imageQuizStatus/imageQuizStatus");
 const FinishQuizStatus = require("../models/finishQuizStatus/finishQuizStatus");
 const EscapeQuizStatus = require("../models/escapeQuizStatus/escapeQuizStatus");
 const validateEmail = require("deep-email-validator").validate;
+const axios = require("axios");
 
 
 exports.postLogin = async (req, res) => {
@@ -77,27 +78,95 @@ exports.postSignup = [
       "Username must contain only alphanumeric characters and underscores"
     ),
 
+  // check("email")
+  //   .isEmail()
+  //   .withMessage("Please enter a valid email address")
+  //   .custom(async (value) => {
+  //     const { valid } = await validateEmail(value);
+  //     if (!valid) {
+  //       throw new Error("Invalid or undeliverable email address");
+  //     }
+  //     return true;
+  //   })
+  //   .custom(async (value, { req }) => {
+  //     const [rows] = await User.fetchEmail();
+  //     const emails = rows.map((u) => u.email);
+  //     if(emails.includes(value)){
+  //       throw new Error("Email is already taken");
+  //     }
+  //     else{
+  //       return true;
+  //     }
+  //   })
+  //   .normalizeEmail(),
+
+  // check("email")
+  // .isEmail()
+  // .withMessage("Please enter a valid email address")
+  // .custom(async value => {
+  //   const result = await validateEmail(value, {
+  //     validateMailbox: false,  // <-- Disable SMTP check
+  //     validateSMTP: false      // <-- Disable SMTP connection
+  //   });
+
+  //   if (!result.valid) {
+  //     throw new Error("Invalid email address");
+  //   }
+  //   return true;
+  // })
+  // .normalizeEmail(),
+
+
+
+// check("email")
+//   .isEmail()
+//   .withMessage("Please enter a valid email address")
+//   .custom(async (email) => {
+//     const response = await axios.get(
+//       // `https://emailvalidation.abstractapi.com/v1/?api_key=${process.env.ABSTRACT_API_KEY}&email=${email}`
+//       `https://emailreputation.abstractapi.com/v1/?api_key=${process.env.ABSTRACT_API_KEY}&email=${email}`
+//     );
+
+//     if (response.data.deliverability !== "DELIVERABLE") {
+//       throw new Error("Email does not appear to exist or accept mail");
+//     }
+
+//     return true;
+//   })
+//   .normalizeEmail(),
+
   check("email")
-    .isEmail()
-    .withMessage("Please enter a valid email address")
-    .custom(async (value) => {
-      const { valid } = await validateEmail(value);
-      if (!valid) {
-        throw new Error("Invalid or undeliverable email address");
-      }
-      return true;
-    })
-    .custom(async (value, { req }) => {
-      const [rows] = await User.fetchEmail();
-      const emails = rows.map((u) => u.email);
-      if(emails.includes(value)){
-        throw new Error("Email is already taken");
-      }
-      else{
-        return true;
-      }
-    })
-    .normalizeEmail(),
+  .isEmail()
+  .withMessage("Please enter a valid email address")
+  .custom(async (email) => {
+    const response = await axios.get(
+      `https://emailreputation.abstractapi.com/v1/?api_key=${process.env.ABSTRACT_API_KEY}&email=${email}`
+    );
+
+    const deliverability = response.data?.email_deliverability?.status;
+    const isDisposable = response.data?.email_quality?.is_disposable;
+    const isFormatValid = response.data?.email_deliverability?.is_format_valid;
+
+    // 1. Basic format safety check
+    if (!isFormatValid) {
+      throw new Error("Invalid email format");
+    }
+
+    // 2. Block disposable email services
+    if (isDisposable) {
+      throw new Error("Disposable emails are not allowed");
+    }
+
+    // 3. Check deliverability
+    // Possible values: "deliverable", "undeliverable", "risky", "unknown"
+    if (deliverability !== "deliverable") {
+      throw new Error("Email does not appear to exist or accept mail");
+    }
+
+    return true;
+  })
+  .normalizeEmail(),
+
 
   check("password")
     .isLength({ min: 8 })
