@@ -41,9 +41,21 @@ exports.postLogout = (req, res) => {
   });
 }
 
+// exports.checkAuth = (req, res) => {
+//   const isLoggedIn = req.session.isLoggedIn || false;
+//   res.json({ isLoggedIn });
+// };
 exports.checkAuth = (req, res) => {
-  const isLoggedIn = req.session.isLoggedIn || false;
-  res.json({ isLoggedIn });
+   if (req.session.userId) {
+    res.json({ 
+      isLoggedIn: true, 
+      userId: req.session.userId 
+    });
+  } else {
+    res.json({ 
+      isLoggedIn: false 
+    });
+  }
 };
 
 exports.postSignup = [
