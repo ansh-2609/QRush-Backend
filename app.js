@@ -31,12 +31,12 @@ app.use(cors({
 
 app.use(session({
   key: 'connect.sid',
-  secret: 'your-secret-key',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   store: sessionStore,
   saveUninitialized: false,
   cookie: {
-    secure: true,             
+    secure: process.env.NODE_ENV === 'production',            
     httpOnly: true,            
     sameSite: "lax",
     maxAge: 24 * 60 * 60 * 1000
