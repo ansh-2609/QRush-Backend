@@ -23,18 +23,23 @@ exports.postLogin = async (req, res) => {
     return res.json({ success: false, message: ["Invalid email or password"] });
   }
 
+  // Set session properties
   req.session.userId = user.id;
   req.session.userEmail = user.email;
   req.session.userName = user.name;
   req.session.isLoggedIn = true;
 
+  console.log("Before save:", { userId: req.session.userId, sessionID: req.sessionID });
+
+  // Save and send response
   req.session.save((err) => {
     if (err) {
       console.error("Session save error:", err);
-      return res.status(500).json({ success: false, message: 'Session save failed', error: err.message });
+      return res.status(500).json({ success: false, message: 'Session save failed' });
     }
     
-    console.log("Session saved successfully:", { userId: req.session.userId, sessionID: req.sessionID });
+    console.log("After save - Session saved successfully:", { userId: req.session.userId, sessionID: req.sessionID });
+    console.log("Cookie settings:", req.sessionID);
     
     res.status(200).json({ 
       success: true, 

@@ -10,6 +10,9 @@ require('dotenv').config();
 
 const app = express();
 
+// Trust proxy - important for HTTPS detection
+app.set('trust proxy', 1);
+
 const options = {
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
@@ -51,9 +54,10 @@ app.use(session({
 // Disable caching for auth endpoints
 app.use((req, res, next) => {
   if (req.path.includes('login') || req.path.includes('logout') || req.path.includes('check-auth')) {
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');
+    res.set('CF-Cache-Status', 'BYPASS');  // Cloudflare specific
   }
   next();
 });
