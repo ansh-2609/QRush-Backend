@@ -50,14 +50,22 @@ exports.postLogin = async (req, res) => {
 };
 
 exports.postLogout = (req, res) => {
-
-  req.session.destroy(err => {
+  req.session.destroy((err) => {
     if (err) {
       console.error("Error destroying session:", err);
-      return res.status(500).json({ success: false });
+      return res.status(500).json({ success: false, message: 'Logout failed' });
     }
-    res.clearCookie("connect.sid");
-    res.json({ success: true });
+    
+    // Clear the cookie after session is destroyed
+    res.clearCookie('connect.sid', {
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none'
+    });
+    
+    console.log("Session destroyed and cookie cleared");
+    res.json({ success: true, message: 'Logout successful' });
   });
 }
 
