@@ -23,25 +23,26 @@ const sessionStore = new MySQLStore(options);
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://qrush-chi.vercel.app",
-    "https://my-qrush-backend.onrender.com",
+    "https://qrush-chi.vercel.app" 
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'Set-Cookie']
 }));
+
 
 app.use(session({
   key: 'connect.sid',
-  secret: 'your-secret-key',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   store: sessionStore,
   saveUninitialized: false,
   cookie: {
-    secure: true,            
+    secure: process.env.NODE_ENV === 'production', 
     httpOnly: true,            
-    sameSite: "none",
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', 
     maxAge: 24 * 60 * 60 * 1000,
-    domain: "my-qrush-backend.onrender.com"
+    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : 'localhost' 
   }
 }));
 
