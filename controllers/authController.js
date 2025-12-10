@@ -44,7 +44,7 @@ exports.postLogin = async (req, res) => {
     res.status(200).json({ 
       success: true, 
       message: 'Login successful',
-      user: { id: user.id, email: user.email, name: user.name }
+      user: { id: req.session.userId, email: req.session.userEmail, name: req.session.userName }
     });
   });
 };
@@ -69,10 +69,6 @@ exports.postLogout = (req, res) => {
   });
 }
 
-// exports.checkAuth = (req, res) => {
-//   const isLoggedIn = req.session.isLoggedIn || false;
-//   res.json({ isLoggedIn });
-// };
 exports.checkAuth = (req, res) => {
    if (req.session.userId) {
     res.json({ 

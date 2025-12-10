@@ -25,7 +25,7 @@ const sessionStore = new MySQLStore(options);
 
 app.use(cors({
   origin: [
-    // "http://localhost:5173",
+    "http://localhost:5173",
     "https://qrush-chi.vercel.app" 
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
@@ -44,23 +44,12 @@ app.use(session({
   store: sessionStore,
   saveUninitialized: false,
   cookie: {
-    secure: true,        // HTTPS only
-    httpOnly: true,      // Prevent JS access
-    sameSite: 'none',    // Allow cross-site
+    secure: true,        
+    httpOnly: true,      
+    sameSite: 'none',    
     maxAge: 1000 * 60 * 60 * 24 // 24 hours
   }
 }));
-
-// Disable caching for auth endpoints
-// app.use((req, res, next) => {
-//   if (req.path.includes('login') || req.path.includes('logout') || req.path.includes('check-auth')) {
-//     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-//     res.set('Pragma', 'no-cache');
-//     res.set('Expires', '0');
-//     res.set('CF-Cache-Status', 'BYPASS');  // Cloudflare specific
-//   }
-//   next();
-// });
 
 app.use(authRouter);
 
