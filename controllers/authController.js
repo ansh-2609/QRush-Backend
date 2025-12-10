@@ -23,19 +23,19 @@ exports.postLogin = async (req, res) => {
     return res.json({ success: false, message: ["Invalid email or password"] });
   }
 
-  // Save user data to session
   req.session.userId = user.id;
   req.session.userEmail = user.email;
   req.session.userName = user.name;
+  req.session.isLoggedIn = true;
 
-  // Save session explicitly before sending response
   req.session.save((err) => {
     if (err) {
-      console.error("Error saving session:", err);
-      return res.status(500).json({ success: false, message: 'Session save failed' });
+      console.error("Session save error:", err);
+      return res.status(500).json({ success: false, message: 'Session save failed', error: err.message });
     }
     
-    // Send response - Set-Cookie header will be included
+    console.log("Session saved successfully:", { userId: req.session.userId, sessionID: req.sessionID });
+    
     res.status(200).json({ 
       success: true, 
       message: 'Login successful',

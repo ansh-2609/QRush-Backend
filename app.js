@@ -48,7 +48,6 @@ app.use(session({
     secure: true,        // HTTPS only
     httpOnly: true,      // Prevent JS access
     sameSite: 'none',    // Allow cross-site
-    domain: '.onrender.com',
     maxAge: 1000 * 60 * 60 * 24 // 24 hours
   }
 }));
