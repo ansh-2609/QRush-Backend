@@ -30,20 +30,16 @@ app.use(cors({
   allowedHeaders: ['Content-Type']
 }));
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
+// Session middleware MUST come before routes
 app.use(session({
   key: 'connect.sid',
   secret: process.env.SESSION_SECRET,
   resave: false,
   store: sessionStore,
   saveUninitialized: false,
-  // cookie: {
-  //   secure: process.env.NODE_ENV === 'production', 
-  //   httpOnly: true,            
-  //   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', 
-  //   maxAge: 24 * 60 * 60 * 1000,
-  //   domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : 'localhost' 
-  // }
   cookie: {
     secure: true,        // HTTPS only
     httpOnly: true,      // Prevent JS access
@@ -52,9 +48,15 @@ app.use(session({
   }
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
+// Disable caching for auth endpoints
+app.use((req, res, next) => {
+  if (req.path.includes('login') || req.path.includes('logout') || req.path.includes('check-auth')) {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+  }
+  next();
+});
 
 app.use(authRouter);
 
