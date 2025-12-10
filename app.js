@@ -10,7 +10,7 @@ require('dotenv').config();
 
 const app = express();
 
-// // Trust proxy - important for HTTPS detection
+// Trust proxy - important for HTTPS detection
 // app.set('trust proxy', 1);
 
 const options = {
@@ -30,7 +30,7 @@ app.use(cors({
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
-  // allowedHeaders: ['Content-Type']
+  allowedHeaders: ['Content-Type']
 }));
 
 app.use(express.json());
