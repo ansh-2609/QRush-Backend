@@ -23,7 +23,8 @@ const sessionStore = new MySQLStore(options);
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://qrush-chi.vercel.app" 
+    "https://qrush-chi.vercel.app",
+    "https://my-qrush-backend.onrender.com",
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
@@ -39,7 +40,8 @@ app.use(session({
     secure: true,            
     httpOnly: true,            
     sameSite: "none",
-    maxAge: 24 * 60 * 60 * 1000
+    maxAge: 24 * 60 * 60 * 1000,
+    domain: "my-qrush-backend.onrender.com"
   }
 }));
 
