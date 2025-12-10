@@ -11,7 +11,7 @@ require('dotenv').config();
 const app = express();
 
 // Trust proxy - important for HTTPS detection
-// app.set('trust proxy', 1);
+app.set('trust proxy', 1);
 
 const options = {
   host: process.env.DB_HOST,
