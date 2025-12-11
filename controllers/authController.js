@@ -70,14 +70,20 @@ exports.postLogout = (req, res) => {
 }
 
 exports.checkAuth = (req, res) => {
-   if (req.session.userId) {
+  console.log("Check auth - Session ID:", req.sessionID);
+  console.log("Check auth - User ID:", req.session.userId);
+  
+  if (req.session.userId) {
     res.json({ 
       isLoggedIn: true, 
-      userId: req.session.userId 
+      userId: req.session.userId,
+      userEmail: req.session.userEmail,
+      userName: req.session.userName
     });
   } else {
     res.json({ 
-      isLoggedIn: false 
+      isLoggedIn: false,
+      userId: null
     });
   }
 };

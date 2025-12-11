@@ -36,7 +36,6 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session middleware MUST come before routes
 app.use(session({
   key: 'connect.sid',
   secret: process.env.SESSION_SECRET,
