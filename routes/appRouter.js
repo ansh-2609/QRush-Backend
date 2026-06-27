@@ -4,6 +4,11 @@ const appRouter = express.Router();
 
 const appController = require('../controllers/appController');
 
+// ping
+appRouter.get('/api/ping', (req, res) => {
+    res.status(200).send('keep-alive');
+});
+
 // Today's Word
 appRouter.get('/todaysword/:id', appController.getTodaysWord);
 
