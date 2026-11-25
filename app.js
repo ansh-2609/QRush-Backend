@@ -7,25 +7,26 @@ const appRouter = require('./routes/appRouter');
 const authRouter = require('./routes/authRouter');
 const MySQLStore = require('express-mysql-session')(session);
 require('dotenv').config();
+const db = require('./utils/databaseUtils')
 
 const app = express();
 
 // Trust proxy - important for HTTPS detection
 app.set('trust proxy', 1);
 
-const options = {
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+// const options = {
+//   host: process.env.DB_HOST,
+//   port: process.env.DB_PORT,
+//   user: process.env.DB_USER,
+//   password: process.env.DB_PASSWORD,
+//   database: process.env.DB_NAME,
 
-  ssl: {
-        minVersion: 'TLSv1.2'
-  },
-};
+//   ssl: {
+//         minVersion: 'TLSv1.2'
+//   },
+// };
 
-const sessionStore = new MySQLStore(options);
+const sessionStore = new MySQLStore({}, db);
 
 app.use(cors({
   origin: [
